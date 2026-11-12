@@ -1,0 +1,6 @@
+interface:
+  display_name: "Change Impact"
+  short_description: "Trace semantic dependencies and define actionable change scope"
+  default_prompt: "Use $change-impact to identify the affected consumers and artifacts for this change, with evidence, required actions, and unknown boundaries."
+policy:
+  allow_implicit_invocation: true

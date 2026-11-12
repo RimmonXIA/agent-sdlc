@@ -191,6 +191,20 @@ class LifecycleTests(unittest.TestCase):
         self.assertEqual(manage.status(self.directory, 'change-closeout')['status'], 'installed')
         self.assertFalse(self.target.exists())
 
+    def test_impact_bundle_relocates_and_preserves_other_installations(self):
+        manage.install(self.source, self.directory)
+        archive = self.root / 'impact.zip'
+        manage.bundle(archive, 'change-impact')
+        extracted = self.root / 'relocated'
+        with zipfile.ZipFile(archive) as package:
+            self.assertFalse(any('change-closeout/' in n or 'repo-continuity/' in n for n in package.namelist()))
+            package.extractall(extracted)
+        result = subprocess.run([sys.executable, str(extracted/'scripts'/'manage_skill.py'), 'install', '--skill', 'change-impact', '--skills-dir', str(self.directory)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(manage.status(self.directory, 'change-impact')['status'], 'installed')
+        manage.uninstall(self.directory, 'change-impact')
+        self.assertEqual(manage.status(self.directory)['status'], 'installed')
+
     def test_cli_absent_status_does_not_create_directory(self):
         result = subprocess.run([sys.executable, str(ROOT/'scripts'/'manage_skill.py'), 'status', '--skills-dir', str(self.directory)], text=True, capture_output=True)
         self.assertEqual(result.returncode, 0)

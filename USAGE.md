@@ -3,6 +3,7 @@
 | 技能 | 何时使用 | 实际作用 |
 |---|---|---|
 | `repo-continuity` | 接手陌生项目或跨会话继续工作 | 找到当前目标、约束和状态，推进任务并留下必要接续信息 |
+| `change-impact` | 接口、数据或共享语义将改变或已改变 | 沿语义依赖定位处理范围，区分确认影响与待查缺口 |
 | `change-closeout` | 实质改动完成，准备交付或提交 | 同步受影响材料和待办，整理当前成果与变化依据，准备合适提交 |
 
 
@@ -13,20 +14,23 @@
 ```bash
 python3 scripts/manage_skill.py install --skill repo-continuity
 python3 scripts/manage_skill.py install --skill change-closeout
+python3 scripts/manage_skill.py install --skill change-impact
 python3 scripts/manage_skill.py status --skill change-closeout
 ```
 
-源码目录包含两项技能；单技能离线包只运行它对应的命令。安装到用户级 `~/.agents/skills/技能名`，复制完整技能及必要参考，不依赖源码仓库继续存在。省略 `--skill` 时保持 `repo-continuity` 的既有默认行为。不会修改全局 AGENTS、Codex 配置或目标项目文件。
+源码目录包含三项技能；单技能离线包只运行它对应的命令。安装到用户级 `~/.agents/skills/技能名`，复制完整技能及必要参考，不依赖源码仓库继续存在。省略 `--skill` 时保持 `repo-continuity` 的既有默认行为。不会修改全局 AGENTS、Codex 配置或目标项目文件。
 
 在另一个 repo 启动新 Codex session，显式调用：
 
 ```text
 Use $repo-continuity to resume the active task in this repository.
 
+Use $change-impact to analyze the consumers affected by this proposed change. Analysis only.
+
 Use $change-closeout to close out this change and prepare delivery. Do not commit yet.
 ```
 
-也可以描述相应任务，让 Codex 按技能描述选择。`change-closeout` 的隐式选择仍需实际使用反馈，不因接续技能选中过就推断它同样可靠。按需选择不保证每次发生；需要确定使用时显式调用。若技能尚未出现，启动新 session 再检查。
+也可以描述相应任务，让 Codex 按技能描述选择。`change-impact` 与 `change-closeout` 的隐式选择仍需实际使用反馈，不因接续技能选中过就推断它同样可靠。按需选择不保证每次发生；需要确定使用时显式调用。若技能尚未出现，启动新 session 再检查。
 
 该技能不要求目标项目有 Git、AGENTS 或某套文档结构；任务和关键背景确实缺失时，会提出具体问题。普通局部修改和一般问答无需接续流程。
 
@@ -57,6 +61,7 @@ enabled = false
 ```bash
 python3 scripts/manage_skill.py bundle --skill repo-continuity --output dist/repo-continuity.zip
 python3 scripts/manage_skill.py bundle --skill change-closeout --output dist/change-closeout.zip
+python3 scripts/manage_skill.py bundle --skill change-impact --output dist/change-impact.zip
 ```
 
 包包含技能、必要参考、安装器和本说明，不包含研究论文、个人偏好、项目授权、测试会话或本机绝对路径。它是原生技能分发包，不声称已经提供插件市场安装入口。
