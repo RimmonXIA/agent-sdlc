@@ -1,0 +1,6 @@
+interface:
+  display_name: "Repo Continuity"
+  short_description: "Recover task context and continue work across project sessions"
+  default_prompt: "Use $repo-continuity to recover the current task context and continue the requested work in this repository."
+policy:
+  allow_implicit_invocation: true
