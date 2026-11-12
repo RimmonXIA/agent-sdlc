@@ -10,6 +10,7 @@
 
 - [信息模型](information-model.md)：SDLC 中的信息、产出物、关系与维护方式。
 - [工作流程](workflow.md)：从探索、决定到当前成果与交接的操作方式。
+- [兼容约束案例](examples/compatibility.md)：决定的条件、实现与发布如何分别演进。
 - [探索材料](inquiry.md)：问题边界、候选模型与后续议题。
 - [协作规则](AGENTS.md)：本项目的工作约定。
 
