@@ -1,0 +1,6 @@
+interface:
+  display_name: "Change Closeout"
+  short_description: "Reconcile changed artifacts and prepare a coherent delivery"
+  default_prompt: "Use $change-closeout to reconcile this change's affected artifacts and prepare delivery within the current authorization."
+policy:
+  allow_implicit_invocation: true

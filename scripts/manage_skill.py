@@ -13,7 +13,7 @@ import tempfile
 import zipfile
 
 NAME = 'repo-continuity'
-OWNER = 'agent-sdlc/repo-continuity'
+SKILL_NAMES = ('repo-continuity', 'change-closeout')
 RECEIPT = '.agent-sdlc-install.json'
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -39,15 +39,15 @@ def digest_files(root):
     return files
 
 
-def source_files(source):
+def source_files(source, skill_name=NAME):
     files = digest_files(source)
     if (source / RECEIPT).exists():
         raise LifecycleError('Distribution source must not contain an install receipt.')
     if 'SKILL.md' not in files:
         raise LifecycleError('Distribution is missing SKILL.md.')
     body = (source / 'SKILL.md').read_text(encoding='utf-8')
-    if not re.search(r'^name: repo-continuity$', body, re.M):
-        raise LifecycleError('Distribution skill name does not match repo-continuity.')
+    if skill_name not in SKILL_NAMES or not re.search(r'^name: '+re.escape(skill_name)+r'$', body, re.M):
+        raise LifecycleError('Distribution skill name does not match the selected skill.')
     for name in files:
         if not name.endswith('.md'):
             continue
@@ -65,14 +65,14 @@ def source_files(source):
     return files
 
 
-def owned_files(target):
+def owned_files(target, skill_name=NAME):
     actual = digest_files(target)
     path = target / RECEIPT
     try:
         receipt = json.loads(path.read_text(encoding='utf-8'))
     except (OSError, ValueError):
         raise LifecycleError('Existing skill has no valid ownership receipt; refusing changes.')
-    if not isinstance(receipt, dict) or receipt.get('owner') != OWNER:
+    if not isinstance(receipt, dict) or receipt.get('owner') != 'agent-sdlc/'+skill_name:
         raise LifecycleError('Existing skill is not owned by this installer.')
     recorded = receipt.get('files')
     if not isinstance(recorded, dict) or actual != recorded:
@@ -81,9 +81,9 @@ def owned_files(target):
 
 
 @contextmanager
-def operation_lock(directory):
+def operation_lock(directory, skill_name=NAME):
     directory.mkdir(parents=True, exist_ok=True)
-    lock = directory / f'.{NAME}.lock'
+    lock = directory / f'.{skill_name}.lock'
     try:
         lock.mkdir()
     except FileExistsError:
@@ -94,27 +94,27 @@ def operation_lock(directory):
         lock.rmdir()
 
 
-def install(source, directory):
-    wanted = source_files(source)
-    target = directory / NAME
+def install(source, directory, skill_name=NAME):
+    wanted = source_files(source, skill_name)
+    target = directory / skill_name
     # Resolve containment before any mutation; never move the distribution itself.
     src, dst = source.resolve(), target.resolve()
     if src == dst or src in dst.parents or dst in src.parents:
         raise LifecycleError('Source and installation must not overlap.')
-    with operation_lock(directory):
+    with operation_lock(directory, skill_name):
         exists = target.exists() or target.is_symlink()
-        if exists and owned_files(target) == wanted:
+        if exists and owned_files(target, skill_name) == wanted:
             return {'status': 'unchanged', 'path': str(target)}
-        stage = Path(tempfile.mkdtemp(prefix=f'.{NAME}-transaction-', dir=directory.parent))
+        stage = Path(tempfile.mkdtemp(prefix=f'.{skill_name}-transaction-', dir=directory.parent))
         new, old = stage / 'new', stage / 'old'
         preserve_backup = False
         try:
             shutil.copytree(source, new, symlinks=False)
             if digest_files(new) != wanted:
                 raise LifecycleError('Source changed during staging; retry with a stable distribution.')
-            (new / RECEIPT).write_text(json.dumps({'owner': OWNER, 'files': wanted}, indent=2) + '\n', encoding='utf-8')
+            (new / RECEIPT).write_text(json.dumps({'owner': 'agent-sdlc/'+skill_name, 'files': wanted}, indent=2) + '\n', encoding='utf-8')
             if exists:
-                owned_files(target)
+                owned_files(target, skill_name)
                 os.replace(target, old)
             try:
                 os.replace(new, target)
@@ -132,28 +132,28 @@ def install(source, directory):
         return {'status': 'updated' if exists else 'installed', 'path': str(target)}
 
 
-def status(directory):
-    target = directory / NAME
+def status(directory, skill_name=NAME):
+    target = directory / skill_name
     if not target.exists() and not target.is_symlink():
         return {'status': 'absent', 'path': str(target)}
-    files = owned_files(target)
+    files = owned_files(target, skill_name)
     return {'status': 'installed', 'path': str(target), 'files': len(files)}
 
 
-def uninstall(directory):
-    target = directory / NAME
+def uninstall(directory, skill_name=NAME):
+    target = directory / skill_name
     if not target.exists() and not target.is_symlink():
         return {'status': 'absent', 'path': str(target)}
-    with operation_lock(directory):
-        owned_files(target)
-        with tempfile.TemporaryDirectory(prefix=f'.{NAME}-transaction-', dir=directory.parent) as stage:
+    with operation_lock(directory, skill_name):
+        owned_files(target, skill_name)
+        with tempfile.TemporaryDirectory(prefix=f'.{skill_name}-transaction-', dir=directory.parent) as stage:
             os.replace(target, Path(stage) / 'removed')
     return {'status': 'removed', 'path': str(target)}
 
 
-def bundle(output):
-    source = ROOT / 'skills' / NAME
-    source_files(source)
+def bundle(output, skill_name=NAME):
+    source = ROOT / 'skills' / skill_name
+    source_files(source, skill_name)
     selected = [ROOT / 'USAGE.md', ROOT / 'scripts' / 'manage_skill.py']
     selected += [p for p in source.rglob('*') if p.is_file()]
     output = output.absolute()
@@ -182,21 +182,23 @@ def main(argv=None):
     default = Path.home() / '.agents' / 'skills'
     for command in ('install', 'status', 'uninstall'):
         child = sub.add_parser(command)
+        child.add_argument('--skill', choices=SKILL_NAMES, default=NAME)
         child.add_argument('--skills-dir', type=Path, default=default)
         if command == 'install':
-            child.add_argument('--source', type=Path, default=ROOT / 'skills' / NAME)
+            child.add_argument('--source', type=Path)
     child = sub.add_parser('bundle')
+    child.add_argument('--skill', choices=SKILL_NAMES, default=NAME)
     child.add_argument('--output', type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == 'install':
-            result = install(args.source, args.skills_dir.absolute())
+            result = install(args.source or ROOT / 'skills' / args.skill, args.skills_dir.absolute(), args.skill)
         elif args.command == 'status':
-            result = status(args.skills_dir.absolute())
+            result = status(args.skills_dir.absolute(), args.skill)
         elif args.command == 'uninstall':
-            result = uninstall(args.skills_dir.absolute())
+            result = uninstall(args.skills_dir.absolute(), args.skill)
         else:
-            result = bundle(args.output)
+            result = bundle(args.output, args.skill)
     except (LifecycleError, OSError) as error:
         # Never dump environment, credentials, or subprocess output on failure.
         print(json.dumps({'status': 'error', 'reason': str(error)}, ensure_ascii=False), file=sys.stderr)

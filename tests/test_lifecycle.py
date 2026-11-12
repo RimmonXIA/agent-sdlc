@@ -166,6 +166,31 @@ class LifecycleTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)['status'], 'installed')
         self.assertEqual(manage.status(self.directory)['status'], 'installed')
 
+    def test_multiple_skills_remain_independently_owned(self):
+        manage.install(self.source, self.directory)
+        closeout = ROOT / 'skills' / 'change-closeout'
+        manage.install(closeout, self.directory, 'change-closeout')
+        before = (self.target / 'SKILL.md').read_bytes()
+        manage.uninstall(self.directory, 'change-closeout')
+        self.assertEqual((self.target / 'SKILL.md').read_bytes(), before)
+        self.assertEqual(manage.status(self.directory)['status'], 'installed')
+
+    def test_skill_name_and_source_must_match(self):
+        with self.assertRaises(manage.LifecycleError):
+            manage.install(self.source, self.directory, 'change-closeout')
+        self.assertFalse((self.directory / 'change-closeout').exists())
+
+    def test_second_skill_bundle_is_self_contained(self):
+        archive = self.root / 'closeout.zip'
+        manage.bundle(archive, 'change-closeout')
+        extracted = self.root / 'relocated-closeout'
+        with zipfile.ZipFile(archive) as package:
+            package.extractall(extracted)
+        result = subprocess.run([sys.executable, str(extracted/'scripts'/'manage_skill.py'), 'install', '--skill', 'change-closeout', '--skills-dir', str(self.directory)], cwd=self.root, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(manage.status(self.directory, 'change-closeout')['status'], 'installed')
+        self.assertFalse(self.target.exists())
+
     def test_cli_absent_status_does_not_create_directory(self):
         result = subprocess.run([sys.executable, str(ROOT/'scripts'/'manage_skill.py'), 'status', '--skills-dir', str(self.directory)], text=True, capture_output=True)
         self.assertEqual(result.returncode, 0)
