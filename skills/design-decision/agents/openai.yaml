@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design Decision"
+  short_description: "Choose designs and revisit constraints with clear reasons"
+  default_prompt: "Use $design-decision to recommend a design choice with its tradeoffs, evidence, validity conditions, and any unresolved authority boundary."
+policy:
+  allow_implicit_invocation: true

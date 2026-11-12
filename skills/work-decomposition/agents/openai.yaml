@@ -1,0 +1,6 @@
+interface:
+  display_name: "Work Decomposition"
+  short_description: "Plan deliverables, dependencies, and integration ownership"
+  default_prompt: "Use $work-decomposition to decompose this work into deliverables, dependencies, shared contracts, and an executable task graph."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Release Status"
+  short_description: "Trace implementation, build, rollout, and effective state"
+  default_prompt: "Use $release-status to determine the actual delivery state of this change, distinguishing source, build, deployment, activation, and verified behavior."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Change Contract"
+  short_description: "Turn a chosen problem into bounded, checkable behavior"
+  default_prompt: "Use $change-contract to clarify this chosen change into expected behavior, boundaries, open decisions, and completion evidence."
+policy:
+  allow_implicit_invocation: true

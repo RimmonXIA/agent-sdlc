@@ -1,0 +1,6 @@
+interface:
+  display_name: "Incident Diagnosis"
+  short_description: "Separate incident observations from causal hypotheses"
+  default_prompt: "Use $incident-diagnosis to diagnose this incident using read-only evidence, distinguish observations from hypotheses, and recommend bounded recovery and repair."
+policy:
+  allow_implicit_invocation: true

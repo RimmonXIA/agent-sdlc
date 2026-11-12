@@ -2,23 +2,44 @@
 
 | 技能 | 何时使用 | 实际作用 |
 |---|---|---|
-| `repo-continuity` | 接手陌生项目或跨会话继续工作 | 找到当前目标、约束和状态，推进任务并留下必要接续信息 |
-| `change-impact` | 接口、数据或共享语义将改变或已改变 | 沿语义依赖定位处理范围，区分确认影响与待查缺口 |
-| `change-closeout` | 实质改动完成，准备交付或提交 | 同步受影响材料和待办，整理当前成果与变化依据，准备合适提交 |
+| `problem-framing` | 问题与投入方向未明确 | 界定问题、价值、假设与最小下一步 |
+| `change-contract` | 选定问题准备进入实现 | 明确行为、边界与可核对的完成条件 |
+| `design-decision` | 新设计取舍或旧约束复审 | 推荐选择、保留理由与重议条件 |
+| `work-decomposition` | 工作需要拆分、交接或协调 | 形成有产出、依赖和整合责任的任务图 |
+| `repo-continuity` | 接手陌生项目或跨会话续做 | 恢复当前目标、约束和状态并推进任务 |
+| `change-impact` | 接口、数据或共享语义将改变或已改变 | 定位语义依赖、必要处理与待查范围 |
+| `contract-check` | 需要对照有效要求核对行为 | 给出可复现差异与检查覆盖边界 |
+| `semantic-integration` | 多份独立结果准备组合 | 协调共享假设，核对端到端组合行为 |
+| `change-closeout` | 实质改动完成，准备交付或提交 | 同步相关成果和任务，整理必要依据 |
+| `migration-plan` | 旧新接口、数据或依赖需要共存和切换 | 规划阶段条件、兼容、恢复与退役 |
+| `release-status` | 准备判断发布或交付完成情况 | 区分实现、构建、部署、激活与行为观测 |
+| `incident-diagnosis` | 发生运行异常或回归 | 只读定位，区分观察与原因假设并建议恢复 |
+| `outcome-review` | 改变已产生真实使用或反馈 | 对照原目标评价效果、成本和替代解释 |
+| `context-boundary` | 反复出现上下文与协调负担 | 定位语义耦合并推荐有界结构调整 |
 
+各项独立使用，不是每次开发都要经过的 14 道步骤。输入、行动边界、完成与停止条件写在各自 `SKILL.md`；没有强制的跨技能依赖。
 
 ## 安装与调用
 
 需要 Python 3.8 或更高版本，以及支持本地技能的 Codex。解压分发包或在源码目录执行：
 
 ```bash
-python3 scripts/manage_skill.py install --skill repo-continuity
-python3 scripts/manage_skill.py install --skill change-closeout
-python3 scripts/manage_skill.py install --skill change-impact
-python3 scripts/manage_skill.py status --skill change-closeout
+python3 scripts/manage_skill.py install --skill change-contract
+python3 scripts/manage_skill.py status --skill change-contract
 ```
 
-源码目录包含三项技能；单技能离线包只运行它对应的命令。安装到用户级 `~/.agents/skills/技能名`，复制完整技能及必要参考，不依赖源码仓库继续存在。省略 `--skill` 时保持 `repo-continuity` 的既有默认行为。不会修改全局 AGENTS、Codex 配置或目标项目文件。
+源码目录包含全部 14 项技能；可只安装需要的项。安装全部时，在源码目录执行以下循环；任何一项失败都会停止，已经安装成功的项保留，不声称整批原子回滚：
+
+```bash
+for skill in problem-framing change-contract design-decision work-decomposition \
+  repo-continuity change-impact contract-check semantic-integration \
+  change-closeout migration-plan release-status incident-diagnosis \
+  outcome-review context-boundary; do
+  python3 scripts/manage_skill.py install --skill "$skill" || break
+done
+```
+
+单技能离线包只运行它对应的命令。安装到用户级 `~/.agents/skills/技能名`，复制完整技能及必要参考，不依赖源码仓库继续存在。省略 `--skill` 时保持 `repo-continuity` 的既有默认行为。不会修改全局 AGENTS、Codex 配置或目标项目文件。
 
 在另一个 repo 启动新 Codex session，显式调用：
 
@@ -30,9 +51,9 @@ Use $change-impact to analyze the consumers affected by this proposed change. An
 Use $change-closeout to close out this change and prepare delivery. Do not commit yet.
 ```
 
-也可以描述相应任务，让 Codex 按技能描述选择。`change-impact` 与 `change-closeout` 的隐式选择仍需实际使用反馈，不因接续技能选中过就推断它同样可靠。按需选择不保证每次发生；需要确定使用时显式调用。若技能尚未出现，启动新 session 再检查。
+也可以描述相应任务，让 Codex 按技能描述选择。每项技能的隐式选择都需要实际使用反馈，不因一个技能选中过就推断其他技能同样可靠。按需选择不保证每次发生；需要确定使用时显式调用。若技能尚未出现，启动新 session 再检查。
 
-该技能不要求目标项目有 Git、AGENTS 或某套文档结构；任务和关键背景确实缺失时，会提出具体问题。普通局部修改和一般问答无需接续流程。
+技能不强制目标项目采用 Git、AGENTS 或特定文档结构。任务需要的代码、消费者、数据或运行环境必须实际可取得；缺少关键输入时会指出具体缺口，不能凭技能正文补造现场事实。普通局部修改无需套用全流程。
 
 ## 更新与退出
 
@@ -59,12 +80,12 @@ enabled = false
 ## 构建离线分发包
 
 ```bash
-python3 scripts/manage_skill.py bundle --skill repo-continuity --output dist/repo-continuity.zip
-python3 scripts/manage_skill.py bundle --skill change-closeout --output dist/change-closeout.zip
-python3 scripts/manage_skill.py bundle --skill change-impact --output dist/change-impact.zip
+python3 scripts/manage_skill.py bundle --skill change-contract --output dist/change-contract.zip
 ```
 
-包包含技能、必要参考、安装器和本说明，不包含研究论文、个人偏好、项目授权、测试会话或本机绝对路径。它是原生技能分发包，不声称已经提供插件市场安装入口。
+将 `--skill` 和输出文件名替换为表中任意技能，即可分别构建全部 14 项。
+
+每个包只包含选定技能、必要参考、安装器和本说明，不包含研究论文、个人偏好、项目授权、测试会话或本机绝对路径。它是原生技能分发包，不声称已经提供插件市场安装入口。
 
 ## 权限与信息
 
@@ -82,10 +103,8 @@ python3 scripts/manage_skill.py bundle --skill change-impact --output dist/chang
 python3 -m unittest discover -s tests -v
 ```
 
-源码中的 `tests/run_codex_checks.py` 可按指定用例启动独立 Codex CLI session，需要有效的现有登录与 Python 3.11 或更高版本。它使用正常用户配置和模型，不继承父会话；运行素材和原始输出写入显式指定的 scratchpad，不进入目标项目成果。单元测试不会自动运行这些模型调用。
+当前交付检查为技能格式与界面元数据校验、全部技能的独立安装／卸载及离线包换目录安装。按项目要求，补齐 14 项不运行独立 session 对比，也不将这种对比作为制作完成的前提。
 
-```bash
-python3 tests/run_codex_checks.py implicit --scratch-dir /path/to/session/scratchpad
-```
+源码保留早期三项技能的手动模型检查驱动，供理解已有结果使用；单元测试和安装命令不会启动它们，也不会发起模型调用。新补齐技能未据此获得行为验证。
 
 运行条件与已检查范围见源码中的 `checks.md`；离线安装包不包含研究材料或原始模型输出。

@@ -13,7 +13,12 @@ import tempfile
 import zipfile
 
 NAME = 'repo-continuity'
-SKILL_NAMES = ('repo-continuity', 'change-closeout', 'change-impact')
+SKILL_NAMES = (
+    'problem-framing', 'change-contract', 'design-decision', 'work-decomposition',
+    'repo-continuity', 'change-impact', 'contract-check', 'semantic-integration',
+    'change-closeout', 'migration-plan', 'release-status', 'incident-diagnosis',
+    'outcome-review', 'context-boundary',
+)
 RECEIPT = '.agent-sdlc-install.json'
 ROOT = Path(__file__).resolve().parent.parent
 

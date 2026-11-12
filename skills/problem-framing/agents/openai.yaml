@@ -1,0 +1,6 @@
+interface:
+  display_name: "Problem Framing"
+  short_description: "Clarify value, assumptions, and the smallest useful next step"
+  default_prompt: "Use $problem-framing to frame this idea into a concrete problem, expected value, critical assumptions, and a recommended next step."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Outcome Review"
+  short_description: "Assess real outcomes, costs, and alternative explanations"
+  default_prompt: "Use $outcome-review to review this change against its original outcomes, costs, and evidence, then recommend keeping, adjusting, or stopping it."
+policy:
+  allow_implicit_invocation: true

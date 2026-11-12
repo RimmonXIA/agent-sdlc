@@ -205,6 +205,39 @@ class LifecycleTests(unittest.TestCase):
         manage.uninstall(self.directory, 'change-impact')
         self.assertEqual(manage.status(self.directory)['status'], 'installed')
 
+    def test_catalog_installations_are_complete_and_independently_removable(self):
+        sources = {p.name for p in (ROOT / 'skills').iterdir() if p.is_dir()}
+        self.assertEqual(set(manage.SKILL_NAMES), sources)
+        self.assertEqual(len(manage.SKILL_NAMES), len(set(manage.SKILL_NAMES)))
+        for name in manage.SKILL_NAMES:
+            with self.subTest(install=name):
+                source = ROOT / 'skills' / name
+                manage.install(source, self.directory, name)
+                self.assertEqual(manage.owned_files(self.directory/name, name), manage.source_files(source, name))
+        remaining = set(manage.SKILL_NAMES)
+        for name in manage.SKILL_NAMES:
+            manage.uninstall(self.directory, name)
+            remaining.remove(name)
+            self.assertEqual({p.name for p in self.directory.iterdir()}, remaining)
+            for other in remaining:
+                self.assertEqual(manage.status(self.directory, other)['status'], 'installed')
+
+    def test_every_skill_bundle_installs_without_research_or_other_skills(self):
+        for name in manage.SKILL_NAMES:
+            with self.subTest(skill=name):
+                archive = self.root / (name+'.zip')
+                manage.bundle(archive, name)
+                extracted = self.root / ('relocated-'+name)
+                source = ROOT / 'skills' / name
+                expected = {'USAGE.md', 'scripts/manage_skill.py'}
+                expected.update('skills/'+name+'/'+p for p in manage.source_files(source, name))
+                with zipfile.ZipFile(archive) as package:
+                    self.assertEqual(set(package.namelist()), expected)
+                    package.extractall(extracted)
+                result = subprocess.run([sys.executable, str(extracted/'scripts/manage_skill.py'), 'install', '--skill', name, '--skills-dir', str(self.directory)], cwd=self.root, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(manage.owned_files(self.directory/name, name), manage.source_files(source, name))
+
     def test_cli_absent_status_does_not_create_directory(self):
         result = subprocess.run([sys.executable, str(ROOT/'scripts'/'manage_skill.py'), 'status', '--skills-dir', str(self.directory)], text=True, capture_output=True)
         self.assertEqual(result.returncode, 0)

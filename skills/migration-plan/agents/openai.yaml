@@ -1,0 +1,6 @@
+interface:
+  display_name: "Migration Plan"
+  short_description: "Plan staged transitions, compatibility, and retirement"
+  default_prompt: "Use $migration-plan to plan this migration with consumers, coexistence rules, phase conditions, recovery limits, and retirement evidence."
+policy:
+  allow_implicit_invocation: true

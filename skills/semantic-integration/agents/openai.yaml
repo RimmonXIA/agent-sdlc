@@ -1,0 +1,6 @@
+interface:
+  display_name: "Semantic Integration"
+  short_description: "Reconcile assumptions across independently produced work"
+  default_prompt: "Use $semantic-integration to check and reconcile the shared assumptions across these results, then integrate only within the authorized scope."
+policy:
+  allow_implicit_invocation: true

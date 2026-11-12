@@ -1,4 +1,27 @@
-# 跨项目任务接续能力
+# 跨项目能力契约
+
+## 全量能力入口
+
+全部 14 项能力的最小执行契约直接维护在对应技能正文中，包括输入、允许动作、结果、停止条件与限制；无需把本研究材料安装到目标项目。技能可独立使用，不要求共享统一任务系统或先加载其他技能。
+
+- [problem-framing](skills/problem-framing/SKILL.md)：界定问题、价值、假设与最小下一步。
+- [change-contract](skills/change-contract/SKILL.md)：明确行为、边界与可核对的完成条件。
+- [design-decision](skills/design-decision/SKILL.md)：推荐选择、保留理由与重议条件。
+- [work-decomposition](skills/work-decomposition/SKILL.md)：形成有产出、依赖和整合责任的任务图。
+- [repo-continuity](skills/repo-continuity/SKILL.md)：恢复当前目标、约束和状态并推进任务。
+- [change-impact](skills/change-impact/SKILL.md)：定位语义依赖、必要处理与待查范围。
+- [contract-check](skills/contract-check/SKILL.md)：给出可复现差异与检查覆盖边界。
+- [semantic-integration](skills/semantic-integration/SKILL.md)：协调共享假设，核对端到端组合行为。
+- [change-closeout](skills/change-closeout/SKILL.md)：同步相关成果和任务，整理必要依据。
+- [migration-plan](skills/migration-plan/SKILL.md)：规划阶段条件、兼容、恢复与退役。
+- [release-status](skills/release-status/SKILL.md)：区分实现、构建、部署、激活与行为观测。
+- [incident-diagnosis](skills/incident-diagnosis/SKILL.md)：只读定位，区分观察与原因假设并建议恢复。
+- [outcome-review](skills/outcome-review/SKILL.md)：对照原目标评价效果、成本和替代解释。
+- [context-boundary](skills/context-boundary/SKILL.md)：定位语义耦合并推荐有界结构调整。
+
+技能授予的是方法，不是新增行动权限。用户只要求分析或计划时不自行实施；缺少消费者、数据和环境等现场信息时指出缺口，不制造事实。当前成果、必要理由与历史各按用途保留，不默认生成新报告。每项已制作与已检查范围见 [检查结果](checks.md)。
+
+以下保留首个接续能力的详细契约与既有实现依据，以及影响分析和收尾的边界说明；其他能力以对应正文为执行依据。
 
 ## 首个价值场景
 

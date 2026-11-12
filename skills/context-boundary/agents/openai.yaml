@@ -1,0 +1,6 @@
+interface:
+  display_name: "Context Boundary"
+  short_description: "Reduce repeated coordination through better system boundaries"
+  default_prompt: "Use $context-boundary to identify the boundary causing repeated context or coordination cost and recommend one bounded structural improvement."
+policy:
+  allow_implicit_invocation: true

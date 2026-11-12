@@ -1,0 +1,6 @@
+interface:
+  display_name: "Contract Check"
+  short_description: "Find reproducible gaps between requirements and behavior"
+  default_prompt: "Use $contract-check to check this behavior against its effective contract and report reproducible gaps, evidence, and coverage limits."
+policy:
+  allow_implicit_invocation: true
