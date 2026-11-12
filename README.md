@@ -21,6 +21,8 @@
 
 - [任务计划与 DAG](plan.md)：理论建设的依赖、产出与完成条件。
 - [理论体系](theory.md)：第一性原理、上下文供给、信息演进、协作与工具职责。
+- [领域基础与命题依据](foundations.md)：一手来源、采用的概念及迁移限制。
+- [贯穿场景](examples/scenarios.md)：从简单修改到发布、运行和退役的假设案例。
 - [信息模型](information-model.md)：SDLC 中的信息、产出物、关系与维护方式。
 - [工作流程](workflow.md)：从探索、决定到当前成果与交接的操作方式。
 - [兼容约束案例](examples/compatibility.md)：决定的条件、实现与发布如何分别演进。
